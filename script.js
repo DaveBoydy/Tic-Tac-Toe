@@ -8,7 +8,9 @@
    * Execute logic after the DOM has loaded.
    */
   addEventListener("load", (event) => {
-    console.log("The page is fully loaded.");
+    console.log(
+      "The page is fully loaded and application logic can be safely executed."
+    );
     initApp();
   });
 
@@ -38,6 +40,7 @@
     // print the board to the console.
     const printBoard = () => {
       const boardWithCellValues = board.map((row) =>
+        // populate array elements with values returned from the cell function.
         row.map((cell) => cell.getValue())
       );
       console.log(boardWithCellValues);

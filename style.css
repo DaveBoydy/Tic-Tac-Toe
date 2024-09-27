@@ -1,0 +1,54 @@
+:root {
+  --game-container-width: 70%;
+  --board-meta-height: 100px;
+  --board-meta-font: 3rem;
+  --board-height: 600px;
+  --board-width: 100%;
+  --cell-size: 33.3%;
+  --symbol-size: 9rem;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+
+  font-family: var(--font-family);
+}
+
+#game-container {
+  width: var(--game-container-width);
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#game-meta {
+  height: var(--board-meta-height);
+  font-size: var(--board-meta-font);
+}
+
+#game-board {
+  background-color: azure;
+  height: var(--board-height);
+  width: var(--board-width);
+  display: flex;
+  flex-direction: column;
+}
+
+.board-row {
+  display: flex;
+  flex-basis: var(--cell-size);
+  max-height: var(--cell-size);
+}
+
+.board-square {
+  border: solid 1px;
+  flex-basis: var(--cell-size);
+  max-width: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mark-board {
+  font-size: var(--symbol-size);
+}
