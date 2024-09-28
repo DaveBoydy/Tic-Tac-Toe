@@ -19,6 +19,8 @@
    */
   function initApp() {
     displayController();
+    cacheDom();
+    addGameBoardObserver();
   }
 
   /*
@@ -52,11 +54,11 @@
 
   /*
    ** Cells represent one "square" on the board.
-   ** cell values are, empty: 0, Symbols: X and Y.
+   ** cell values are, empty: "", Symbols: X and O.
    ** symbols represent opposing players.
    */
   function Cell() {
-    let value = 0;
+    let value = "";
 
     // retrieve the current cell value VIA closure.
     const getValue = () => value;
@@ -72,5 +74,55 @@
   function displayController() {
     const board = gameBoard();
     board.printBoard();
+  }
+
+  function cacheDom() {
+    const boardView = document.querySelector("#game-board");
+
+    const getBoardView = () => boardView;
+
+    return {
+      getBoardView,
+    };
+  }
+
+  function addGameBoardObserver() {
+    const boardView = cacheDom();
+
+    boardView.getBoardView().addEventListener("click", (e) => {
+      const target = e.target;
+
+      switch (target.id) {
+        case "cell-one":
+          console.log("cell one was clicked");
+          break;
+        case "cell-two":
+          console.log("cell two was clicked");
+          break;
+        case "cell-three":
+          console.log("cell three was clicked");
+          break;
+
+        case "cell-four":
+          console.log("cell four was clicked");
+          break;
+        case "cell-five":
+          console.log("cell five was clicked");
+          break;
+        case "cell-six":
+          console.log("cell six was clicked");
+          break;
+
+        case "cell-seven":
+          console.log("cell seven was clicked");
+          break;
+        case "cell-eight":
+          console.log("cell eight was clicked");
+          break;
+        case "cell-nine":
+          console.log("cell nine was clicked");
+          break;
+      }
+    });
   }
 })();
