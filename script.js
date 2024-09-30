@@ -5,7 +5,7 @@
 
 (function () {
   /*
-   * Execute logic after the DOM has loaded.
+   ** Execute logic after the DOM has loaded.
    */
   addEventListener("load", (event) => {
     console.log(
@@ -15,42 +15,41 @@
   });
 
   /*
-   * Bootstrap the app.
+   ** Bootstraps the app.
    */
   function initApp() {
-    displayController();
-    cacheDom();
+    CacheDom();
     addGameBoardObserver();
+    gameBoard.generateBoard();
+    displayController();
+    gameController();
   }
 
   /*
    ** Represents the state of the game board
    */
-  function gameBoard() {
-    const board = [];
-    const rows = 3;
-    const columns = 3;
 
-    // Create a 2d array that will represent the game board
-    for (let i = 0; i < rows; i++) {
-      board[i] = [];
-      for (let j = 0; j < columns; j++) {
-        board[i].push(Cell());
+  const gameBoard = {
+    board: [],
+    rows: 3,
+    columns: 3,
+    generateBoard() {
+      // Create a 2d array that will represent the game board
+      for (let i = 0; i < this.rows; i++) {
+        this.board[i] = [];
+        for (let j = 0; j < this.columns; j++) {
+          this.board[i].push(Cell());
+        }
       }
-    }
-
-    // print the board to the console.
-    const printBoard = () => {
-      const boardWithCellValues = board.map((row) =>
+    },
+    printBoard() {
+      const boardWithCellValues = this.board.map((row) =>
         // populate array elements with values returned from the cell function.
         row.map((cell) => cell.getValue())
       );
       console.log(boardWithCellValues);
-    };
-
-    // expose an interface to the gameBoard for the app's controller(s).
-    return { printBoard };
-  }
+    },
+  };
 
   /*
    ** Cells represent one "square" on the board.
@@ -69,31 +68,69 @@
   }
 
   /*
-   * Render updates to the UI.
+   ** Render updates to the UI and
+   ** Subscribes to pubsub to know when events have occurred.
    */
   function displayController() {
-    const board = gameBoard();
-    board.printBoard();
+    gameBoard.printBoard();
 
-    pubsub.subscribe("boardClicked", function handleBoardClick(data) {
+    const gameMeta = CacheDom().getGameMetaView();
+
+    console.log(gameMeta);
+
+    const updateBoard = (data) => {
       console.log(`The display controller noticed ${data} was clicked`);
-    });
+    };
+
+    pubsub.subscribe("boardClicked", updateBoard);
   }
 
-  function cacheDom() {
+  /*
+   ** Represents the games players
+   */
+  const players = {
+    playerOne: {
+      name: "Player One",
+    },
+    playerTwo: {
+      name: "Player Two",
+    },
+  };
+
+  /*
+   ** Handles game flow E.G. player turns.
+   */
+  function gameController() {
+    let activePlayer = players.playerOne.name;
+
+    console.log(`${activePlayer}'s turn.`);
+  }
+
+  /*
+   ** Stores references to specific DOM nodes
+   ** and exposes those references VIA closures.
+   */
+  function CacheDom() {
     const boardView = document.querySelector("#game-board");
+    const gameMeta = document.querySelector("#game-meta");
 
     const getBoardView = () => boardView;
+    const getGameMetaView = () => gameMeta;
 
     return {
       getBoardView,
+      getGameMetaView,
     };
   }
 
+  /*
+   ** Listens for click events
+   ** and publishes events VIA pubsub
+   */
   function addGameBoardObserver() {
-    const boardView = cacheDom();
+    const boardView = CacheDom().getBoardView();
 
-    boardView.getBoardView().addEventListener("click", (e) => {
+    boardView.addEventListener("click", (e) => {
       const target = e.target.id;
       pubsub.publish("boardClicked", target);
     });

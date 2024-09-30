@@ -1,7 +1,8 @@
 :root {
   --game-container-width: 70%;
-  --board-meta-height: 100px;
+  --intro-title: 5rem;
   --board-meta-font: 3rem;
+  --board-meta-height: 125px;
   --board-height: 600px;
   --board-width: 100%;
   --cell-size: 33.3%;
@@ -13,6 +14,14 @@
   font-family: var(--font-family);
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
 #game-container {
   width: var(--game-container-width);
   margin: auto;
@@ -21,9 +30,27 @@
   align-items: center;
 }
 
+#intro h1 {
+  font-size: var(--intro-title);
+}
+
 #game-meta {
   height: var(--board-meta-height);
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#player-turn {
+  position: relative;
+  left: 10px;
+}
+
+#game-meta h2 {
   font-size: var(--board-meta-font);
+  justify-content: center;
 }
 
 #game-board {
