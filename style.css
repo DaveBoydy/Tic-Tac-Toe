@@ -1,12 +1,12 @@
 :root {
   --game-container-width: 70%;
-  --intro-title: 5rem;
-  --board-meta-font: 3rem;
+  --intro-title: clamp(3rem, 0.5rem + 8vw, 5rem);
+  --board-meta-font: clamp(2rem, 0.75rem + 4vw, 3rem);
   --board-meta-height: 125px;
   --board-height: 600px;
   --board-width: 100%;
   --cell-size: 33.34%;
-  --symbol-size: 9rem;
+  --symbol-size: clamp(6rem, 2.25rem + 12vw, 9rem);
   --player-one-color: #0000ff;
   --player-two-color: #ff0000;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -37,17 +37,13 @@
 }
 
 #game-meta {
-  height: var(--board-meta-height);
+  min-height: var(--board-meta-height);
   width: 100%;
   display: flex;
   flex-wrap: wrap;
+  column-gap: 32px;
   justify-content: space-between;
   align-items: center;
-}
-
-#player-turn {
-  position: relative;
-  left: 10px;
 }
 
 #game-meta h2 {
@@ -114,4 +110,10 @@
 
 .mark-board {
   font-size: var(--symbol-size);
+}
+
+@media (max-width: 1143px) {
+  #game-container {
+    align-items: flex-start;
+  }
 }
