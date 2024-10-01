@@ -9,6 +9,8 @@
   --symbol-size: clamp(6rem, 2.25rem + 12vw, 9rem);
   --player-one-color: #0000ff;
   --player-two-color: #ff0000;
+  --footer-font: clamp(1rem, 0.375rem + 2vw, 1.5rem);
+  --footer-padding: 24px;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol";
@@ -25,6 +27,7 @@
 }
 
 #game-container {
+  height: 100vh;
   width: var(--game-container-width);
   margin: auto;
   display: flex;
@@ -34,6 +37,7 @@
 
 #intro h1 {
   font-size: var(--intro-title);
+  text-align: center;
 }
 
 #game-meta {
@@ -110,6 +114,15 @@
 
 .mark-board {
   font-size: var(--symbol-size);
+}
+
+#outro {
+  margin-top: auto;
+  padding: var(--footer-padding);
+}
+
+#outro > p {
+  font-size: var(--footer-font);
 }
 
 @media (max-width: 1143px) {

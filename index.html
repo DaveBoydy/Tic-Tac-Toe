@@ -8,10 +8,12 @@
     <script defer src="script.js"></script>
   </head>
   <body>
-    <main id="game-container">
+  
+    <div id="game-container">
       <header id="intro">
-        <h1 class="player-to-player-color " >Tic Tac Toe</h1>
+        <h1 class="player-to-player-color" >Tic Tac Toe</h1>
       </header>
+      
       <div id="game-meta">
         <section>
           <h2 class="player-one-color" >Player Colors:<span class="player-one-color"> X</span> <span class="player-two-color">0</span></h2>
@@ -23,7 +25,7 @@
 
         <section><h2 class="player-two-color">Best of Three: <span class="player-one-color">0 </span><span class="player-two-color">0</span</h2></section>
       </div>
-      <div id="game-board">
+      <main id="game-board">
         <div class="board-row">
           <div id="cell-one" class="board-square">
             <p class="mark-board player-one-color">X</p>
@@ -57,7 +59,21 @@
             <p class="mark-board"></p>
           </div>
         </div>
-      </div>
+      </main>
+
+      <footer id="outro">
+
+        <p class="player-to-player-color">
+          The Odin Project @
+          <script>
+            document.write(new Date().getFullYear());
+          </script>
+          By <a href="https://github.com/DaveBoydy">DaveBoydy</a>
+        </p>
+  
+      </footer>
+      
     </main>
+   
   </body>
 </html>
