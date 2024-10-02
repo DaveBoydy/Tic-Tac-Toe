@@ -72,15 +72,47 @@
    ** Subscribes to pubsub to know when events have occurred.
    */
   function displayController() {
-    gameBoard.printBoard();
+    // gameBoard.printBoard();
 
-    const gameMeta = CacheDom().getGameMetaView();
+    // const gameMeta = CacheDom().getGameMetaView();
+    // console.log(gameMeta);
 
-    console.log(gameMeta);
+    const gameBoardView = CacheDom().getBoardView();
 
     const updateBoard = (data) => {
+      gameBoardView.querySelectorAll(".board-square").forEach((cell) => {
+        let gameCell = cell.getAttribute("id");
+
+        let invertedCellSymbol = "";
+
+        // The active player is a false positive at this point
+        // because the switcher switched the active player
+        // before the symbol was marked on the board
+        // therefore player symbols must be inverted.
+        if (data.activePlayer === players.playerOne.name) {
+          invertedCellSymbol = "0";
+        } else if (data.activePlayer === players.playerTwo.name) {
+          invertedCellSymbol = "X";
+        }
+
+        if (data.cell == gameCell) {
+          cell.textContent = invertedCellSymbol;
+
+          // The same inverted logic must be applied here player
+          // one must be treated as player two and vice versa.
+          if (data.activePlayer === players.playerOne.name) {
+            cell.classList.add("player-two-color");
+          } else if (data.activePlayer === players.playerTwo.name) {
+            cell.classList.add("player-one-color");
+          }
+        }
+      });
+
+      // The active player is a true positive at this point
+      // because the symbol was placed and now it is the
+      // active players turn.
       console.log(
-        `Display controller: ${data.cell} was clicked by ${data.activePlayer}`
+        `Display controller: ${data.cell} was clicked, now it's ${data.activePlayer}'s turn`
       );
     };
 
@@ -101,6 +133,7 @@
 
   /*
    ** Handles game flow E.G. player turns.
+   ** publishes player turn events VIA pubsub.
    */
   function gameController() {
     let activePlayer = players.playerOne.name;
@@ -112,7 +145,6 @@
           ? players.playerTwo.name
           : players.playerOne.name;
 
-      console.log(`${activePlayer}'s turn.`);
       pubsub.publish("switchPlayerTurn", { activePlayer, cell });
     };
 
@@ -137,7 +169,7 @@
   }
 
   /*
-   ** Listens for click events
+   ** Listens for game board click events
    ** and publishes events VIA pubsub
    */
   function addGameBoardObserver() {
