@@ -79,10 +79,12 @@
     console.log(gameMeta);
 
     const updateBoard = (data) => {
-      console.log(`The display controller noticed ${data} was clicked`);
+      console.log(
+        `Display controller: ${data.cell} was clicked by ${data.activePlayer}`
+      );
     };
 
-    pubsub.subscribe("boardClicked", updateBoard);
+    pubsub.subscribe("switchPlayerTurn", updateBoard);
   }
 
   /*
@@ -102,8 +104,19 @@
    */
   function gameController() {
     let activePlayer = players.playerOne.name;
-
     console.log(`${activePlayer}'s turn.`);
+
+    const switchPlayerTurn = (cell) => {
+      activePlayer =
+        activePlayer === players.playerOne.name
+          ? players.playerTwo.name
+          : players.playerOne.name;
+
+      console.log(`${activePlayer}'s turn.`);
+      pubsub.publish("switchPlayerTurn", { activePlayer, cell });
+    };
+
+    pubsub.subscribe("boardClicked", switchPlayerTurn);
   }
 
   /*
@@ -150,21 +163,21 @@
     events: {},
 
     subscribe(eName, fn) {
-      console.log(`PUBSUB: someone just subscribed to know about ${eName}`);
+      // console.log(`PUBSUB: someone just subscribed to know about ${eName}`);
       //Check if an event exists, if it doesn't add the event as an empty array.
       this.events[eName] = this.events[eName] || [];
       //add the function that gets passed as an argument to the array.
       this.events[eName].push(fn);
     },
     unsubscribe(eName, fn) {
-      console.log(`PUBSUB: someone just Unsubscribed from ${eName}`);
+      // console.log(`PUBSUB: someone just Unsubscribed from ${eName}`);
       //remove an event function by name
       if (this.events[eName]) {
         this.events[eName] = this.events[eName].filter((f) => f !== fn);
       }
     },
     publish(eName, data) {
-      console.log(`PUBSUB: Making a broadcast about ${eName} with ${data}`);
+      // console.log(`PUBSUB: Making a broadcast about ${eName} with ${data}`);
       //emit|publish|announce the event to anyone who is subscribed
       if (this.events[eName]) {
         this.events[eName].forEach((f) => {
