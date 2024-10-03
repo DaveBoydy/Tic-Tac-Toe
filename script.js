@@ -21,14 +21,28 @@
     CacheDom();
     addGameBoardObserver();
     gameBoard.generateBoard();
-    displayController();
     gameController();
+    inputController();
+    displayController();
   }
+
+  /*
+   ** Represents the games players
+   */
+  const players = {
+    playerOne: {
+      name: "Player One",
+    },
+    playerTwo: {
+      name: "Player Two",
+    },
+  };
+
+  players.activePlayer = players.playerOne.name;
 
   /*
    ** Represents the state of the game board
    */
-
   const gameBoard = {
     board: [],
     rows: 3,
@@ -68,87 +82,73 @@
   }
 
   /*
-   ** Render updates to the UI and
-   ** Subscribes to pubsub to know when events have occurred.
+   ** Sanitizes input before use by the display controller.
    */
-  function displayController() {
-    // gameBoard.printBoard();
-
-    // const gameMeta = CacheDom().getGameMetaView();
-    // console.log(gameMeta);
-
+  function inputController() {
     const gameBoardView = CacheDom().getBoardView();
 
-    const updateBoard = (data) => {
+    const sanitizeInput = (data) => {
       gameBoardView.querySelectorAll(".board-square").forEach((cell) => {
         let gameCell = cell.getAttribute("id");
 
-        let invertedCellSymbol = "";
-
-        // The active player is a false positive at this point
-        // because the switcher switched the active player
-        // before the symbol was marked on the board
-        // therefore player symbols must be inverted.
-        if (data.activePlayer === players.playerOne.name) {
-          invertedCellSymbol = "0";
-        } else if (data.activePlayer === players.playerTwo.name) {
-          invertedCellSymbol = "X";
-        }
-
-        if (data.cell == gameCell) {
-          cell.textContent = invertedCellSymbol;
-
-          // The same inverted logic must be applied here player
-          // one must be treated as player two and vice versa.
-          if (data.activePlayer === players.playerOne.name) {
-            cell.classList.add("player-two-color");
-          } else if (data.activePlayer === players.playerTwo.name) {
-            cell.classList.add("player-one-color");
+        //find the cell that was clicked
+        if (data == gameCell) {
+          //if the cell has been marked return I.E. do nothing
+          if (
+            cell.classList.contains("player-one-color") ||
+            cell.classList.contains("player-two-color")
+          ) {
+            return;
           }
+
+          pubsub.publish("inputCleaned", cell);
         }
       });
-
-      // The active player is a true positive at this point
-      // because the symbol was placed and now it is the
-      // active players turn.
-      console.log(
-        `Display controller: ${data.cell} was clicked, now it's ${data.activePlayer}'s turn`
-      );
     };
 
-    pubsub.subscribe("switchPlayerTurn", updateBoard);
+    pubsub.subscribe("boardClicked", sanitizeInput);
   }
 
   /*
-   ** Represents the games players
+   ** Render updates to the UI.
    */
-  const players = {
-    playerOne: {
-      name: "Player One",
-    },
-    playerTwo: {
-      name: "Player Two",
-    },
-  };
+  function displayController() {
+    const updateBoard = (element) => {
+      let cellSymbol = "";
+      if (players.activePlayer === players.playerOne.name) {
+        cellSymbol = "X";
+      } else if (players.activePlayer === players.playerTwo.name) {
+        cellSymbol = "0";
+      }
+      element.textContent = cellSymbol;
+      if (players.activePlayer === players.playerOne.name) {
+        element.classList.add("player-one-color");
+      } else if (players.activePlayer === players.playerTwo.name) {
+        element.classList.add("player-two-color");
+      }
+
+      pubsub.publish("boardMarked");
+    };
+
+    pubsub.subscribe("inputCleaned", updateBoard);
+  }
 
   /*
    ** Handles game flow E.G. player turns.
-   ** publishes player turn events VIA pubsub.
    */
   function gameController() {
-    let activePlayer = players.playerOne.name;
-    console.log(`${activePlayer}'s turn.`);
+    console.log(`${players.activePlayer}'s turn.`);
 
-    const switchPlayerTurn = (cell) => {
-      activePlayer =
-        activePlayer === players.playerOne.name
+    const switchPlayerTurn = () => {
+      players.activePlayer =
+        players.activePlayer === players.playerOne.name
           ? players.playerTwo.name
           : players.playerOne.name;
 
-      pubsub.publish("switchPlayerTurn", { activePlayer, cell });
+      console.log(`${players.activePlayer}'s turn.`);
     };
 
-    pubsub.subscribe("boardClicked", switchPlayerTurn);
+    pubsub.subscribe("boardMarked", switchPlayerTurn);
   }
 
   /*
@@ -195,21 +195,21 @@
     events: {},
 
     subscribe(eName, fn) {
-      // console.log(`PUBSUB: someone just subscribed to know about ${eName}`);
+      console.log(`PUBSUB: someone just subscribed to know about ${eName}`);
       //Check if an event exists, if it doesn't add the event as an empty array.
       this.events[eName] = this.events[eName] || [];
       //add the function that gets passed as an argument to the array.
       this.events[eName].push(fn);
     },
     unsubscribe(eName, fn) {
-      // console.log(`PUBSUB: someone just Unsubscribed from ${eName}`);
+      console.log(`PUBSUB: someone just Unsubscribed from ${eName}`);
       //remove an event function by name
       if (this.events[eName]) {
         this.events[eName] = this.events[eName].filter((f) => f !== fn);
       }
     },
     publish(eName, data) {
-      // console.log(`PUBSUB: Making a broadcast about ${eName} with ${data}`);
+      console.log(`PUBSUB: Making a broadcast about ${eName} with ${data}`);
       //emit|publish|announce the event to anyone who is subscribed
       if (this.events[eName]) {
         this.events[eName].forEach((f) => {
