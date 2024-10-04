@@ -21,6 +21,7 @@
     CacheDom();
     addGameBoardObserver();
     gameBoard.generateBoard();
+    gameBoard.virtualBoard();
     gameController();
     inputController();
     displayController();
@@ -32,13 +33,36 @@
   const players = {
     playerOne: {
       name: "Player One",
+      mark: "X",
     },
     playerTwo: {
       name: "Player Two",
+      mark: "0",
     },
   };
 
   players.activePlayer = players.playerOne.name;
+
+  /*
+   ** Cells represent one "square" on the board.
+   ** cell values are marked with Symbols: X and O.
+   ** symbols represent opposing players.
+   */
+  function Cell(cell) {
+    let value = cell;
+
+    const setValue = (player) => {
+      value = player;
+    };
+
+    // retrieve the current cell value VIA closure.
+    const getValue = () => value;
+
+    return {
+      getValue,
+      setValue,
+    };
+  }
 
   /*
    ** Represents the state of the game board
@@ -48,37 +72,63 @@
     rows: 3,
     columns: 3,
     generateBoard() {
-      // Create a 2d array that will represent the game board
+      // Create a 2d array that will represent the game board.
       for (let i = 0; i < this.rows; i++) {
         this.board[i] = [];
+        // Add HTML div ID's that represent the board to the corresponding array index.
         for (let j = 0; j < this.columns; j++) {
-          this.board[i].push(Cell());
+          this.board[i].push(Cell(`row${i + 1}-cell${j + 1}`));
         }
       }
     },
-    printBoard() {
-      const boardWithCellValues = this.board.map((row) =>
-        // populate array elements with values returned from the cell function.
-        row.map((cell) => cell.getValue())
-      );
-      console.log(boardWithCellValues);
+    virtualBoard() {
+      const updateVirtualBoard = (element) => {
+        const eID = element.id;
+
+        this.board.forEach((row) => {
+          row.forEach((cell) => {
+            if (cell.getValue() === eID) {
+              if (players.activePlayer === players.playerOne.name) {
+                console.log(`before mark: ${cell.getValue()}`);
+                cell.setValue(players.playerOne.mark);
+                console.log(`after mark: ${cell.getValue()}`);
+              } else if (players.activePlayer === players.playerTwo.name) {
+                console.log(`before mark: ${cell.getValue()}`);
+                cell.setValue(players.playerTwo.mark);
+                console.log(`after mark: ${cell.getValue()}`);
+              }
+            }
+          });
+        });
+      };
+      pubsub.subscribe("inputCleaned", updateVirtualBoard);
     },
   };
 
   /*
-   ** Cells represent one "square" on the board.
-   ** cell values are, empty: "", Symbols: X and O.
-   ** symbols represent opposing players.
+   ** Render updates to the UI.
    */
-  function Cell() {
-    let value = "";
+  function displayController() {
+    console.table(gameBoard.board);
 
-    // retrieve the current cell value VIA closure.
-    const getValue = () => value;
+    const updateBoardView = (element) => {
+      let cellSymbol = "";
+      if (players.activePlayer === players.playerOne.name) {
+        cellSymbol = players.playerOne.mark;
+      } else if (players.activePlayer === players.playerTwo.name) {
+        cellSymbol = players.playerTwo.mark;
+      }
+      element.textContent = cellSymbol;
+      if (players.activePlayer === players.playerOne.name) {
+        element.classList.add("player-one-color");
+      } else if (players.activePlayer === players.playerTwo.name) {
+        element.classList.add("player-two-color");
+      }
 
-    return {
-      getValue,
+      pubsub.publish("boardMarked");
     };
+
+    pubsub.subscribe("inputCleaned", updateBoardView);
   }
 
   /*
@@ -107,30 +157,6 @@
     };
 
     pubsub.subscribe("boardClicked", sanitizeInput);
-  }
-
-  /*
-   ** Render updates to the UI.
-   */
-  function displayController() {
-    const updateBoard = (element) => {
-      let cellSymbol = "";
-      if (players.activePlayer === players.playerOne.name) {
-        cellSymbol = "X";
-      } else if (players.activePlayer === players.playerTwo.name) {
-        cellSymbol = "0";
-      }
-      element.textContent = cellSymbol;
-      if (players.activePlayer === players.playerOne.name) {
-        element.classList.add("player-one-color");
-      } else if (players.activePlayer === players.playerTwo.name) {
-        element.classList.add("player-two-color");
-      }
-
-      pubsub.publish("boardMarked");
-    };
-
-    pubsub.subscribe("inputCleaned", updateBoard);
   }
 
   /*
@@ -195,21 +221,21 @@
     events: {},
 
     subscribe(eName, fn) {
-      console.log(`PUBSUB: someone just subscribed to know about ${eName}`);
+      // console.log(`PUBSUB: someone just subscribed to know about ${eName}`);
       //Check if an event exists, if it doesn't add the event as an empty array.
       this.events[eName] = this.events[eName] || [];
       //add the function that gets passed as an argument to the array.
       this.events[eName].push(fn);
     },
     unsubscribe(eName, fn) {
-      console.log(`PUBSUB: someone just Unsubscribed from ${eName}`);
+      // console.log(`PUBSUB: someone just Unsubscribed from ${eName}`);
       //remove an event function by name
       if (this.events[eName]) {
         this.events[eName] = this.events[eName].filter((f) => f !== fn);
       }
     },
     publish(eName, data) {
-      console.log(`PUBSUB: Making a broadcast about ${eName} with ${data}`);
+      // console.log(`PUBSUB: Making a broadcast about ${eName} with ${data}`);
       //emit|publish|announce the event to anyone who is subscribed
       if (this.events[eName]) {
         this.events[eName].forEach((f) => {
