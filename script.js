@@ -37,7 +37,7 @@
     },
     playerTwo: {
       name: "Player Two",
-      mark: "0",
+      mark: "O",
     },
   };
 
@@ -80,6 +80,15 @@
           this.board[i].push(Cell(`row${i + 1}-cell${j + 1}`));
         }
       }
+      this.virtualBoard().scanVirtualColumns();
+      this.printBoard();
+    },
+    printBoard() {
+      const boardWithCellValues = this.board.map((row) =>
+        // populate array elements with values returned from the cell function.
+        row.map((cell) => cell.getValue())
+      );
+      console.table(boardWithCellValues);
     },
     virtualBoard() {
       const updateVirtualBoard = (element) => {
@@ -89,19 +98,41 @@
           row.forEach((cell) => {
             if (cell.getValue() === eID) {
               if (players.activePlayer === players.playerOne.name) {
-                console.log(`before mark: ${cell.getValue()}`);
                 cell.setValue(players.playerOne.mark);
-                console.log(`after mark: ${cell.getValue()}`);
+                console.log(cell.getValue());
               } else if (players.activePlayer === players.playerTwo.name) {
-                console.log(`before mark: ${cell.getValue()}`);
                 cell.setValue(players.playerTwo.mark);
-                console.log(`after mark: ${cell.getValue()}`);
+                console.log(cell.getValue());
               }
             }
           });
         });
       };
+
+      const scanVirtualRows = () => {
+        this.board.forEach((row) => {
+          const allMarkedX = row.every((cell) => cell.getValue() === "X");
+          const allMarkedO = row.every((cell) => cell.getValue() === "O");
+
+          //TODO trigger win condition
+          if (allMarkedX) console.log("Player X has won!");
+          if (allMarkedO) console.log("Player O has won!");
+        });
+      };
+
+      const scanVirtualColumns = () => {
+        
+      };
+
+      const scanVirtualCrossSection = () => {};
+
       pubsub.subscribe("inputCleaned", updateVirtualBoard);
+
+      return {
+        scanVirtualRows,
+        scanVirtualColumns,
+        scanVirtualCrossSection,
+      };
     },
   };
 
@@ -109,8 +140,6 @@
    ** Render updates to the UI.
    */
   function displayController() {
-    console.table(gameBoard.board);
-
     const updateBoardView = (element) => {
       let cellSymbol = "";
       if (players.activePlayer === players.playerOne.name) {
@@ -165,6 +194,10 @@
   function gameController() {
     console.log(`${players.activePlayer}'s turn.`);
 
+    function checkWinCondition() {
+      gameBoard.virtualBoard().scanVirtualRows();
+    }
+
     const switchPlayerTurn = () => {
       players.activePlayer =
         players.activePlayer === players.playerOne.name
@@ -174,6 +207,7 @@
       console.log(`${players.activePlayer}'s turn.`);
     };
 
+    pubsub.subscribe("boardMarked", checkWinCondition);
     pubsub.subscribe("boardMarked", switchPlayerTurn);
   }
 
