@@ -80,7 +80,6 @@
           this.board[i].push(Cell(`row${i + 1}-cell${j + 1}`));
         }
       }
-      this.virtualBoard().scanVirtualColumns();
       this.printBoard();
     },
     printBoard() {
@@ -121,7 +120,27 @@
       };
 
       const scanVirtualColumns = () => {
-        
+        let column1 = [];
+        let column2 = [];
+        let column3 = [];
+        this.board.forEach((row) => {
+          column1.push(row[0]);
+          column2.push(row[1]);
+          column3.push(row[2]);
+        });
+
+        const allMarksMatch = (col) => {
+          const allMarkedX = col.every((cell) => cell.getValue() === "X");
+          const allMarkedO = col.every((cell) => cell.getValue() === "O");
+
+          //TODO trigger win condition
+          if (allMarkedX) console.log("Player X has won!");
+          if (allMarkedO) console.log("Player O has won!");
+        };
+
+        allMarksMatch(column1);
+        allMarksMatch(column2);
+        allMarksMatch(column3);
       };
 
       const scanVirtualCrossSection = () => {};
@@ -196,6 +215,7 @@
 
     function checkWinCondition() {
       gameBoard.virtualBoard().scanVirtualRows();
+      gameBoard.virtualBoard().scanVirtualColumns();
     }
 
     const switchPlayerTurn = () => {
