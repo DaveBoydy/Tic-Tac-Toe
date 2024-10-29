@@ -32,16 +32,16 @@
    */
   const players = {
     playerOne: {
-      name: "Player One",
+      // name: "Player One",
       mark: "X",
     },
     playerTwo: {
-      name: "Player Two",
+      // name: "Player Two",
       mark: "O",
     },
   };
 
-  players.activePlayer = players.playerOne.name;
+  players.activePlayer = players.playerOne.mark;
 
   /*
    ** Cells represent one "square" on the board.
@@ -96,16 +96,25 @@
         this.board.forEach((row) => {
           row.forEach((cell) => {
             if (cell.getValue() === eID) {
-              if (players.activePlayer === players.playerOne.name) {
+              if (players.activePlayer === players.playerOne.mark) {
                 cell.setValue(players.playerOne.mark);
                 console.log(cell.getValue());
-              } else if (players.activePlayer === players.playerTwo.name) {
+              } else if (players.activePlayer === players.playerTwo.mark) {
                 cell.setValue(players.playerTwo.mark);
                 console.log(cell.getValue());
               }
             }
           });
         });
+      };
+
+      const allMarksMatch = (col) => {
+        const allMarkedX = col.every((cell) => cell.getValue() === "X");
+        const allMarkedO = col.every((cell) => cell.getValue() === "O");
+
+        //TODO trigger win condition
+        if (allMarkedX) console.log("Player X has won!");
+        if (allMarkedO) console.log("Player O has won!");
       };
 
       const scanVirtualRows = () => {
@@ -129,28 +138,36 @@
           column3.push(row[2]);
         });
 
-        const allMarksMatch = (col) => {
-          const allMarkedX = col.every((cell) => cell.getValue() === "X");
-          const allMarkedO = col.every((cell) => cell.getValue() === "O");
-
-          //TODO trigger win condition
-          if (allMarkedX) console.log("Player X has won!");
-          if (allMarkedO) console.log("Player O has won!");
-        };
-
         allMarksMatch(column1);
         allMarksMatch(column2);
         allMarksMatch(column3);
       };
 
-      const scanVirtualCrossSection = () => {};
+      const scanVirtualCrossColumns = () => {
+        let crossColumnRight = [];
+        let crossColumnLeft = [];
+        let columns = 3;
+
+        this.board.forEach((row) => {
+          columns -= 1;
+          crossColumnRight.push(row[columns]);
+        });
+
+        this.board.forEach((row) => {
+          crossColumnLeft.push(row[columns]);
+          columns += 1;
+        });
+
+        allMarksMatch(crossColumnRight);
+        allMarksMatch(crossColumnLeft);
+      };
 
       pubsub.subscribe("inputCleaned", updateVirtualBoard);
 
       return {
         scanVirtualRows,
         scanVirtualColumns,
-        scanVirtualCrossSection,
+        scanVirtualCrossColumns,
       };
     },
   };
@@ -161,15 +178,15 @@
   function displayController() {
     const updateBoardView = (element) => {
       let cellSymbol = "";
-      if (players.activePlayer === players.playerOne.name) {
+      if (players.activePlayer === players.playerOne.mark) {
         cellSymbol = players.playerOne.mark;
-      } else if (players.activePlayer === players.playerTwo.name) {
+      } else if (players.activePlayer === players.playerTwo.mark) {
         cellSymbol = players.playerTwo.mark;
       }
       element.textContent = cellSymbol;
-      if (players.activePlayer === players.playerOne.name) {
+      if (players.activePlayer === players.playerOne.mark) {
         element.classList.add("player-one-color");
-      } else if (players.activePlayer === players.playerTwo.name) {
+      } else if (players.activePlayer === players.playerTwo.mark) {
         element.classList.add("player-two-color");
       }
 
@@ -216,13 +233,14 @@
     function checkWinCondition() {
       gameBoard.virtualBoard().scanVirtualRows();
       gameBoard.virtualBoard().scanVirtualColumns();
+      gameBoard.virtualBoard().scanVirtualCrossColumns();
     }
 
     const switchPlayerTurn = () => {
       players.activePlayer =
-        players.activePlayer === players.playerOne.name
-          ? players.playerTwo.name
-          : players.playerOne.name;
+        players.activePlayer === players.playerOne.mark
+          ? players.playerTwo.mark
+          : players.playerOne.mark;
 
       console.log(`${players.activePlayer}'s turn.`);
     };
