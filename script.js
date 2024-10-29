@@ -186,7 +186,17 @@
       pubsub.publish("boardMarked");
     };
 
+    const updatePlayersTurnMetaView = () => {
+      const playerTurnMetaView = CacheDom().getPlayerTurnMeta();
+      playerTurnMetaView.textContent = `Player ${players.activePlayer}'s Turn`;
+
+      ["player-one-color", "player-two-color"].map((c) =>
+        playerTurnMetaView.classList.toggle(c)
+      );
+    };
+
     pubsub.subscribe("inputCleaned", updateBoardView);
+    pubsub.subscribe("playerSwitched", updatePlayersTurnMetaView);
   }
 
   /*
@@ -236,6 +246,7 @@
           : players.playerOne.mark;
 
       console.log(`${players.activePlayer}'s turn.`);
+      pubsub.publish("playerSwitched");
     };
 
     pubsub.subscribe("boardMarked", checkWinCondition);
@@ -248,14 +259,17 @@
    */
   function CacheDom() {
     const boardView = document.querySelector("#game-board");
-    const gameMeta = document.querySelector("#game-meta");
+    const playerTurnMeta = document.querySelector("#player-turn");
+    const playerScoreMeta = document.querySelector("#player-score");
 
     const getBoardView = () => boardView;
-    const getGameMetaView = () => gameMeta;
+    const getPlayerTurnMeta = () => playerTurnMeta;
+    const getPlayerScoreMeta = () => playerScoreMeta;
 
     return {
       getBoardView,
-      getGameMetaView,
+      getPlayerTurnMeta,
+      getPlayerScoreMeta,
     };
   }
 
