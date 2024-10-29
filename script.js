@@ -32,11 +32,9 @@
    */
   const players = {
     playerOne: {
-      // name: "Player One",
       mark: "X",
     },
     playerTwo: {
-      // name: "Player Two",
       mark: "O",
     },
   };
@@ -119,12 +117,7 @@
 
       const scanVirtualRows = () => {
         this.board.forEach((row) => {
-          const allMarkedX = row.every((cell) => cell.getValue() === "X");
-          const allMarkedO = row.every((cell) => cell.getValue() === "O");
-
-          //TODO trigger win condition
-          if (allMarkedX) console.log("Player X has won!");
-          if (allMarkedO) console.log("Player O has won!");
+          allMarksMatch(row);
         });
       };
 
@@ -225,7 +218,7 @@
   }
 
   /*
-   ** Handles game flow E.G. player turns.
+   ** Handles game flow E.G. player turns and wins.
    */
   function gameController() {
     console.log(`${players.activePlayer}'s turn.`);
