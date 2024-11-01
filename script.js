@@ -19,12 +19,19 @@
    */
   function initApp() {
     CacheDom();
+    LocalStoragePlayers();
     addGameBoardObserver();
     gameBoard.generateBoard();
     gameBoard.virtualBoard();
     gameController();
     inputController();
     displayController();
+    pubsub.publish("newRound");
+
+    //TODO reset the game when one player wins the match
+
+    // let players_serialized = JSON.stringify(players);
+    // localStorage.setItem("players", players_serialized);
   }
 
   /*
@@ -33,9 +40,11 @@
   const players = {
     playerOne: {
       mark: "X",
+      score: 0,
     },
     playerTwo: {
       mark: "O",
+      score: 0,
     },
   };
 
@@ -78,7 +87,6 @@
           this.board[i].push(Cell(`row${i + 1}-cell${j + 1}`));
         }
       }
-      this.printBoard();
     },
     printBoard() {
       const boardWithCellValues = this.board.map((row) =>
@@ -110,9 +118,12 @@
         const allMarkedX = col.every((cell) => cell.getValue() === "X");
         const allMarkedO = col.every((cell) => cell.getValue() === "O");
 
-        //TODO trigger win condition
-        if (allMarkedX) console.log("Player X has won!");
-        if (allMarkedO) console.log("Player O has won!");
+        if (allMarkedX) {
+          pubsub.publish("roundOver", "X");
+        }
+        if (allMarkedO) {
+          pubsub.publish("roundOver", "O");
+        }
       };
 
       const scanVirtualRows = () => {
@@ -195,8 +206,19 @@
       );
     };
 
+    const updatePlayersScoreMetaView = () => {
+      const playerOneScoreMeta = CacheDom().getPlayerOneScoreMeta();
+      const playerTwoScoreMeta = CacheDom().getPlayerTwoScoreMeta();
+
+      const players_deserialized = LocalStoragePlayers().getPlayers();
+
+      playerOneScoreMeta.textContent = players_deserialized.playerOne.score;
+      playerTwoScoreMeta.textContent = players_deserialized.playerTwo.score;
+    };
+
     pubsub.subscribe("inputCleaned", updateBoardView);
     pubsub.subscribe("playerSwitched", updatePlayersTurnMetaView);
+    pubsub.subscribe("newRound", updatePlayersScoreMetaView);
   }
 
   /*
@@ -249,8 +271,26 @@
       pubsub.publish("playerSwitched");
     };
 
+    const beginNewRound = (winner) => {
+      if (winner === "X") {
+        LocalStoragePlayers().incrementPlayerOneScore();
+      }
+      if (winner === "O") {
+        LocalStoragePlayers().incrementPlayerTwoScore();
+      }
+
+      gameBoard.generateBoard();
+      // gameBoard.printBoard();
+
+      // Refresh the page
+      location.reload();
+
+      pubsub.publish("newRound");
+    };
+
     pubsub.subscribe("boardMarked", checkWinCondition);
     pubsub.subscribe("boardMarked", switchPlayerTurn);
+    pubsub.subscribe("roundOver", beginNewRound);
   }
 
   /*
@@ -260,16 +300,50 @@
   function CacheDom() {
     const boardView = document.querySelector("#game-board");
     const playerTurnMeta = document.querySelector("#player-turn");
-    const playerScoreMeta = document.querySelector("#player-score");
+    const playerOneScoreMeta = document.querySelector("#player-one-score");
+    const playerTwoScoreMeta = document.querySelector("#player-two-score");
 
     const getBoardView = () => boardView;
     const getPlayerTurnMeta = () => playerTurnMeta;
-    const getPlayerScoreMeta = () => playerScoreMeta;
+    const getPlayerOneScoreMeta = () => playerOneScoreMeta;
+    const getPlayerTwoScoreMeta = () => playerTwoScoreMeta;
 
     return {
       getBoardView,
       getPlayerTurnMeta,
-      getPlayerScoreMeta,
+      getPlayerOneScoreMeta,
+      getPlayerTwoScoreMeta,
+    };
+  }
+
+  function LocalStoragePlayers() {
+    if (localStorage.getItem("players") === null) {
+      const players_serialized = JSON.stringify(players);
+      localStorage.setItem("players", players_serialized);
+    }
+
+    let players_deserialized = JSON.parse(localStorage.getItem("players"));
+
+    const getPlayers = () => players_deserialized;
+
+    const incrementPlayerOneScore = () => {
+      players_deserialized.playerOne.score += 1;
+      console.log(players_deserialized.playerOne.score);
+
+      const players_serialized = JSON.stringify(players_deserialized);
+      localStorage.setItem("players", players_serialized);
+    };
+
+    const incrementPlayerTwoScore = () => {
+      players_deserialized.playerTwo.score += 1;
+      const players_serialized = JSON.stringify(players_deserialized);
+      localStorage.setItem("players", players_serialized);
+    };
+
+    return {
+      getPlayers,
+      incrementPlayerOneScore,
+      incrementPlayerTwoScore,
     };
   }
 

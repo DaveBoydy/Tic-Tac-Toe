@@ -71,6 +71,10 @@
     1;
 }
 
+#player-one-score {
+  margin-right: 8px;
+}
+
 .player-one-color {
   color: var(--player-one-color);
 }
