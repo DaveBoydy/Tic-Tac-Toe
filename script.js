@@ -27,11 +27,6 @@
     inputController();
     displayController();
     pubsub.publish("newRound");
-
-    //TODO reset the game when one player wins the match
-
-    // let players_serialized = JSON.stringify(players);
-    // localStorage.setItem("players", players_serialized);
   }
 
   /*
@@ -282,10 +277,31 @@
       gameBoard.generateBoard();
       // gameBoard.printBoard();
 
+      //TODO have the player(s) manually refresh the page VIA UI prompt after a round.
+
       // Refresh the page
-      location.reload();
+      // location.reload();
 
       pubsub.publish("newRound");
+      checkMatchState();
+    };
+
+    const checkMatchState = () => {
+      if (LocalStoragePlayers().getPlayers().playerOne.score >= 3) {
+        announceMatchWinner();
+      }
+
+      if (LocalStoragePlayers().getPlayers().playerTwo.score >= 3) {
+        announceMatchWinner();
+      }
+    };
+
+    const announceMatchWinner = () => {
+      console.log("the match has been won");
+      let players_serialized = JSON.stringify(players);
+      localStorage.setItem("players", players_serialized);
+
+      //TODO UI popup to announce the match winner and prompt for a new match
     };
 
     pubsub.subscribe("boardMarked", checkWinCondition);
@@ -328,8 +344,6 @@
 
     const incrementPlayerOneScore = () => {
       players_deserialized.playerOne.score += 1;
-      console.log(players_deserialized.playerOne.score);
-
       const players_serialized = JSON.stringify(players_deserialized);
       localStorage.setItem("players", players_serialized);
     };
