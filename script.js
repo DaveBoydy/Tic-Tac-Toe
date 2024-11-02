@@ -29,6 +29,11 @@
     pubsub.publish("newRound");
   }
 
+  // Refresh the page
+  function locationReload() {
+    location.reload();
+  }
+
   /*
    ** Represents the games players
    */
@@ -277,11 +282,6 @@
       gameBoard.generateBoard();
       // gameBoard.printBoard();
 
-      //TODO have the player(s) manually refresh the page VIA UI prompt after a round.
-
-      // Refresh the page
-      // location.reload();
-
       pubsub.publish("newRound");
       checkMatchState();
     };
@@ -289,10 +289,15 @@
     const checkMatchState = () => {
       if (LocalStoragePlayers().getPlayers().playerOne.score >= 3) {
         announceMatchWinner();
-      }
-
-      if (LocalStoragePlayers().getPlayers().playerTwo.score >= 3) {
+      } else if (LocalStoragePlayers().getPlayers().playerTwo.score >= 3) {
         announceMatchWinner();
+      } else {
+        const announcer = CacheDom().getAnnouncer();
+        const roundTemplate = CacheDom().getRoundScore();
+
+        announcer.appendChild(roundTemplate.content.cloneNode(true));
+        const newRound = CacheDom().getNewRound();
+        newRound.addEventListener("click", locationReload);
       }
     };
 
@@ -301,7 +306,13 @@
       let players_serialized = JSON.stringify(players);
       localStorage.setItem("players", players_serialized);
 
-      //TODO UI popup to announce the match winner and prompt for a new match
+      const announcer = CacheDom().getAnnouncer();
+      const matchTemplate = CacheDom().getMatchScore();
+
+      announcer.appendChild(matchTemplate.content.cloneNode(true));
+
+      const newMatch = CacheDom().getNewMatch();
+      newMatch.addEventListener("click", locationReload);
     };
 
     pubsub.subscribe("boardMarked", checkWinCondition);
@@ -318,17 +329,32 @@
     const playerTurnMeta = document.querySelector("#player-turn");
     const playerOneScoreMeta = document.querySelector("#player-one-score");
     const playerTwoScoreMeta = document.querySelector("#player-two-score");
+    const roundScore = document.querySelector("#round-score");
+    const matchScore = document.querySelector("#match-score");
+    const announcer = document.querySelector("#announcer");
+    const newRoundButton = document.querySelector("#new-round");
+    const newMatchButton = document.querySelector("#new-match");
 
     const getBoardView = () => boardView;
     const getPlayerTurnMeta = () => playerTurnMeta;
     const getPlayerOneScoreMeta = () => playerOneScoreMeta;
     const getPlayerTwoScoreMeta = () => playerTwoScoreMeta;
+    const getRoundScore = () => roundScore;
+    const getMatchScore = () => matchScore;
+    const getAnnouncer = () => announcer;
+    const getNewRound = () => newRoundButton;
+    const getNewMatch = () => newMatchButton;
 
     return {
       getBoardView,
       getPlayerTurnMeta,
       getPlayerOneScoreMeta,
       getPlayerTwoScoreMeta,
+      getRoundScore,
+      getMatchScore,
+      getAnnouncer,
+      getNewRound,
+      getNewMatch,
     };
   }
 
