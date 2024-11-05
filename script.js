@@ -281,7 +281,10 @@
         LocalStoragePlayers().incrementPlayerTwoScore();
       }
 
+      // reset virtual board
       gameBoard.generateBoard();
+
+      // print virtual board to the console
       // gameBoard.printBoard();
 
       pubsub.publish("newRound");

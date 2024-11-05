@@ -1,7 +1,6 @@
 :root {
   --game-container-width: 70%;
   --intro-title: clamp(3rem, 0.5rem + 8vw, 5rem);
-  --announcer-title: 3rem;
   --board-meta-font: clamp(2rem, 0.75rem + 4vw, 3rem);
   --board-meta-height: 125px;
   --board-height: 600px;
@@ -78,8 +77,9 @@
 }
 
 #announcer {
+  padding: 0 8px;
   position: fixed;
-  top: 15%;
+  top: 75%;
   color: #fff;
   width: var(--game-container-width);
   background: linear-gradient(
@@ -93,14 +93,14 @@
 }
 
 #announcer h1 {
-  font-size: var(--announcer-title);
+  font-size: var(--board-meta-font);
 }
 
 #announcer button {
   background-color: #fff;
   border-radius: 16px;
   padding: 8px;
-  border: none;
+  border: 1px solid purple;
   font-size: 1rem;
   color: purple;
   cursor: pointer;
