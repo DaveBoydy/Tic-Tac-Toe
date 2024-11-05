@@ -21,6 +21,7 @@
     CacheDom();
     LocalStoragePlayers();
     addGameBoardObserver();
+    resetGameObserver();
     gameBoard.generateBoard();
     gameBoard.virtualBoard();
     gameController();
@@ -32,6 +33,13 @@
   // Refresh the page
   function locationReload() {
     location.reload();
+  }
+
+  //
+  function resetGame() {
+    const players_serialized = JSON.stringify(players);
+    localStorage.setItem("players", players_serialized);
+    locationReload();
   }
 
   /*
@@ -303,6 +311,10 @@
         const roundTemplate = CacheDom().getRoundScore();
 
         announcer.appendChild(roundTemplate.content.cloneNode(true));
+
+        const gameContainer = CacheDom().getGameContainer();
+        gameContainer.classList.toggle("backdrop-blur");
+
         const newRound = CacheDom().getNewRound();
         newRound.addEventListener("click", locationReload);
 
@@ -320,6 +332,9 @@
       const matchTemplate = CacheDom().getMatchScore();
 
       announcer.appendChild(matchTemplate.content.cloneNode(true));
+
+      const gameContainer = CacheDom().getGameContainer();
+      gameContainer.classList.toggle("backdrop-blur");
 
       const newMatch = CacheDom().getNewMatch();
       newMatch.addEventListener("click", locationReload);
@@ -339,6 +354,7 @@
    ** and exposes those references VIA closures.
    */
   function CacheDom() {
+    const gameContainer = document.querySelector("#game-container");
     const boardView = document.querySelector("#game-board");
     const playerTurnMeta = document.querySelector("#player-turn");
     const playerOneScoreMeta = document.querySelector("#player-one-score");
@@ -350,7 +366,10 @@
     const newMatchButton = document.querySelector("#new-match");
     const roundWinner = document.querySelector("#round-winner");
     const matchWinner = document.querySelector("#match-winner");
+    const resetRound = document.querySelector("#reset-round");
+    const resetMatch = document.querySelector("#reset-match");
 
+    const getGameContainer = () => gameContainer;
     const getBoardView = () => boardView;
     const getPlayerTurnMeta = () => playerTurnMeta;
     const getPlayerOneScoreMeta = () => playerOneScoreMeta;
@@ -362,8 +381,11 @@
     const getNewMatch = () => newMatchButton;
     const getRoundWinner = () => roundWinner;
     const getMatchWinner = () => matchWinner;
+    const getResetRound = () => resetRound;
+    const getResetMatch = () => resetMatch;
 
     return {
+      getGameContainer,
       getBoardView,
       getPlayerTurnMeta,
       getPlayerOneScoreMeta,
@@ -375,6 +397,8 @@
       getNewMatch,
       getRoundWinner,
       getMatchWinner,
+      getResetRound,
+      getResetMatch,
     };
   }
 
@@ -418,6 +442,14 @@
       const target = e.target.id;
       pubsub.publish("boardClicked", target);
     });
+  }
+
+  function resetGameObserver() {
+    const resetRound = CacheDom().getResetRound();
+    const resetMatch = CacheDom().getResetMatch();
+
+    resetRound.addEventListener("click", locationReload);
+    resetMatch.addEventListener("click", resetGame);
   }
 
   /*

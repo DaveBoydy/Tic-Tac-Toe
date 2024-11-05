@@ -79,16 +79,17 @@
 #announcer {
   padding: 0 8px;
   position: fixed;
-  top: 75%;
+  top: 40%;
+  right: 30%;
   color: #fff;
-  width: var(--game-container-width);
+  min-width: 40%;
   background: linear-gradient(
     to right,
     var(--player-one-color) 0%,
     var(--player-two-color) 100%
   );
 
-  display: flex;
+  display: inline-flex;
   justify-content: center;
 }
 
@@ -104,11 +105,35 @@
   font-size: 1rem;
   color: purple;
   cursor: pointer;
+  max-height: 5em;
 }
 
 #announcer button:active {
   transform: scale(0.99);
   box-shadow: var(--pressed-button-shadow);
+}
+
+#reset-buttons button {
+  color: #fff;
+  margin-top: 8px;
+  margin-right: 24px;
+  border-radius: 16px;
+  padding: 8px;
+  border: 1px solid purple;
+  background: linear-gradient(
+    to right,
+    var(--player-one-color) 0%,
+    var(--player-two-color) 100%
+  );
+}
+
+#outro {
+  margin-top: auto;
+  padding: var(--footer-padding);
+}
+
+#outro > p {
+  font-size: var(--footer-font);
 }
 
 .banner {
@@ -163,13 +188,18 @@
   font-size: var(--symbol-size);
 }
 
-#outro {
-  margin-top: auto;
-  padding: var(--footer-padding);
+.backdrop-blur {
+  filter: blur(8px);
 }
 
-#outro > p {
-  font-size: var(--footer-font);
+@media (max-width: 600px) {
+  .banner {
+    flex-direction: row;
+  }
+
+  #announcer button {
+    margin-top: 8px;
+  }
 }
 
 @media (max-width: 1143px) {
