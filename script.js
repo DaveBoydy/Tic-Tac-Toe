@@ -253,6 +253,7 @@
    ** Handles game flow E.G. player turns and wins.
    */
   function gameController() {
+    let gameWinner = "X";
     console.log(`${players.activePlayer}'s turn.`);
 
     function checkWinCondition() {
@@ -272,6 +273,7 @@
     };
 
     const beginNewRound = (winner) => {
+      gameWinner = winner;
       if (winner === "X") {
         LocalStoragePlayers().incrementPlayerOneScore();
       }
@@ -288,8 +290,10 @@
 
     const checkMatchState = () => {
       if (LocalStoragePlayers().getPlayers().playerOne.score >= 3) {
+        gameWinner = "X";
         announceMatchWinner();
       } else if (LocalStoragePlayers().getPlayers().playerTwo.score >= 3) {
+        gameWinner = "O";
         announceMatchWinner();
       } else {
         const announcer = CacheDom().getAnnouncer();
@@ -298,11 +302,14 @@
         announcer.appendChild(roundTemplate.content.cloneNode(true));
         const newRound = CacheDom().getNewRound();
         newRound.addEventListener("click", locationReload);
+
+        // Announce round winner
+        const roundWinner = CacheDom().getRoundWinner();
+        roundWinner.textContent = gameWinner;
       }
     };
 
     const announceMatchWinner = () => {
-      console.log("the match has been won");
       let players_serialized = JSON.stringify(players);
       localStorage.setItem("players", players_serialized);
 
@@ -313,6 +320,10 @@
 
       const newMatch = CacheDom().getNewMatch();
       newMatch.addEventListener("click", locationReload);
+
+      // Announce match winner
+      const matchWinner = CacheDom().getMatchWinner();
+      matchWinner.textContent = gameWinner;
     };
 
     pubsub.subscribe("boardMarked", checkWinCondition);
@@ -334,6 +345,8 @@
     const announcer = document.querySelector("#announcer");
     const newRoundButton = document.querySelector("#new-round");
     const newMatchButton = document.querySelector("#new-match");
+    const roundWinner = document.querySelector("#round-winner");
+    const matchWinner = document.querySelector("#match-winner");
 
     const getBoardView = () => boardView;
     const getPlayerTurnMeta = () => playerTurnMeta;
@@ -344,6 +357,8 @@
     const getAnnouncer = () => announcer;
     const getNewRound = () => newRoundButton;
     const getNewMatch = () => newMatchButton;
+    const getRoundWinner = () => roundWinner;
+    const getMatchWinner = () => matchWinner;
 
     return {
       getBoardView,
@@ -355,6 +370,8 @@
       getAnnouncer,
       getNewRound,
       getNewMatch,
+      getRoundWinner,
+      getMatchWinner,
     };
   }
 
